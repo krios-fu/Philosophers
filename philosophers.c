@@ -6,68 +6,56 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/22 02:47:15 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/22 22:43:58 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
-void eat_philo(pthread_mutex_t *status, long n_philo)
+void eat_philo(pthread_mutex_t *status, int n_philo)
 {
-	int i = 0;
 	pthread_mutex_lock(status);
-
-	while (i < 5)
-	{
-		printf("Hilo %li\n", n_philo);
-		i++;
-	}
+		printf("Hilo %i\n", n_philo);
 	pthread_mutex_unlock(status);
+	//sleep(2);
 	
 }
 void	*start_philo(void *arg)
 {
-	pthread_mutex_t status;
-	int i;
-	i = 0;
-	// while(i < 10)
-	// {
-		eat_philo(&status, (long)arg);
-		sleep(3);
-		i++;
-	// }
-	return(arg);
+	static pthread_mutex_t status;
 	
+	pthread_mutex_init(&status, NULL);
+	eat_philo(&status, *((int*)arg));
+	return(arg);	
 }
 
-void	create_philosophers(pthread_t *philo, long n_philo)
+void	create_philosophers(pthread_t *philo, int n_philo)
 {
-	int i;
+	int i, j;
 
 	i = 0;
+	j = n_philo -1 ;
+	pthread_mutex_t status;
 
+	pthread_mutex_init(&status, NULL);
 	while(i < n_philo)
 	{
-		pthread_create(&philo[i], NULL, start_philo, (void *)i + 1);
-
+		pthread_create(&philo[i], NULL, start_philo, &i );
 		i++;
 	}
 
-	i = 0;
-	while(i < n_philo)
+	while(j >= 0)
 	{
-		pthread_join(philo[i], NULL);
-		i++;
-		
+		pthread_join(philo[j], NULL);
+		j--;
 	}
-	
 	
 }
 
 int main(int argc, char *argv[])
 {
 	(void)argc;
-	long n_philo;
+	int n_philo;
 	pthread_t *philo;
 
 	n_philo = min_atoi(argv[1]);
