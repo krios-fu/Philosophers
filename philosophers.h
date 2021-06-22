@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/21 23:02:57 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/22 02:14:30 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,11 @@
 # include <pthread.h>
 # include <unistd.h>
 # include <stdio.h>
+# include <stdlib.h>
 
 
 /* 
-** funtions utils
+** functions utils
 */
 
 int	ft_isdigit(int c);

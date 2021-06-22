@@ -6,51 +6,83 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/21 23:04:27 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/22 02:47:15 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
-void eat_philo(pthread_mutex_t *status, void *arg)
+void eat_philo(pthread_mutex_t *status, long n_philo)
 {
 	int i = 0;
 	pthread_mutex_lock(status);
 
 	while (i < 5)
 	{
-		printf("Hilo %i\n", (int)arg);
+		printf("Hilo %li\n", n_philo);
 		i++;
 	}
 	pthread_mutex_unlock(status);
 	
 }
-void	*philo(void *arg)
+void	*start_philo(void *arg)
 {
 	pthread_mutex_t status;
 	int i;
 	i = 0;
-	while(i < 10)
+	// while(i < 10)
+	// {
+		eat_philo(&status, (long)arg);
+		sleep(3);
+		i++;
+	// }
+	return(arg);
+	
+}
+
+void	create_philosophers(pthread_t *philo, long n_philo)
+{
+	int i;
+
+	i = 0;
+
+	while(i < n_philo)
 	{
-		eat_philo(&status, arg);
-		sleep(2);
+		pthread_create(&philo[i], NULL, start_philo, (void *)i + 1);
+
 		i++;
 	}
-	return(arg);
+
+	i = 0;
+	while(i < n_philo)
+	{
+		pthread_join(philo[i], NULL);
+		i++;
+		
+	}
+	
 	
 }
 
 int main(int argc, char *argv[])
 {
+	(void)argc;
+	long n_philo;
+	pthread_t *philo;
 
-	printf("%d", min_atoi("1234546789"));
-	// pthread_t hilo[2];
-	// int i = 1;
-
-	// pthread_create(&hilo[0], NULL, philo, (void*)1);
-	// pthread_create(&hilo[1], NULL, philo, (void*)2);
-	// pthread_join(hilo[0], NULL);
-	// pthread_join(hilo[1], NULL);
+	n_philo = min_atoi(argv[1]);
+	if (n_philo > 0)
+	{
+		philo = (pthread_t *)malloc(sizeof(pthread_t) * n_philo);
+		if (!philo)
+			printf("Error:\nMalloc");
+	}
+	else
+		{
+			printf("Error:\nInvalid argument: %s\n", argv[1]);
+			return(-1);
+		}
+	create_philosophers(philo, n_philo);
 	
 	return (0);
 }
