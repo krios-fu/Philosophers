@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/24 20:33:15 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/24 22:23:45 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void print_status(t_philosophers philo, char *message)
 {
 	struct timeval	end;
-	int			diff;
+	float			diff;
 	
 	gettimeofday(&end, NULL);
 	
@@ -28,14 +28,14 @@ void print_status(t_philosophers philo, char *message)
 	// ft_putstr_fd(message, 1);
 	// ft_putstr_fd("\n", 1);
 	
-	 printf("%d %d %s\n", diff, philo.num, message);
+	 printf("%.0f %s %d %3s\n", diff, "ms",philo.num, message);
 	
 }
 void eat_philo(t_philosophers *philo)
 {
+
 	pthread_mutex_lock(&philo->left->fork);
-	print_status(*philo, " has taken a fork");
-	//write(1, "hola", 4);
+	print_status(*philo, "has taken a fork");
 	pthread_mutex_lock(&philo->fork);
 	print_status(*philo, "has taken a fork");
 	print_status(*philo, "is eating");
@@ -52,7 +52,8 @@ void	*start_philo(void *arg)
 	
 	while(1)
 	{
-		eat_philo(philo);
+		eat_philo(philo);	
+		//print_status(*philo, "is sleeping");
 		usleep(philo->time_to->sleep);
 	}
 	return(arg);	
@@ -70,8 +71,10 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 
 	while(i < n_philo)
 	{
+		
 		lst_philos->hilo = (pthread_t *)malloc(sizeof(pthread_t));
 		pthread_mutex_init(&lst_philos->fork, NULL);
+		
 		pthread_create(lst_philos->hilo, NULL, start_philo, (void *)lst_philos);
 		lst_philos = lst_philos->right;
 		i++;
@@ -158,6 +161,7 @@ int main (int argc, char *argv[])
 	lst_philo = new_philo(1, new_time(miltomic(argv[2]),miltomic(argv[3]), miltomic(argv[4])), start);
 	while (i <= n_philo)
 	{
+	
 		add_philos(&lst_philo, new_philo(i, new_time(miltomic(argv[2]), miltomic(argv[3]), miltomic(argv[4])), start));
 		i++;
 	}
