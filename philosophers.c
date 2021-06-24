@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/23 23:31:38 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/24 16:06:22 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,25 @@
 void eat_philo(t_philosophers *philo)
 {
 	
-	pthread_mutex_lock(&philo->l->fork);
+	pthread_mutex_lock(&philo->left->fork);
 	pthread_mutex_lock(&philo->fork);
-		printf("Hilo %i\n", philo->num);
-	sleep(1);
+	printf("Hilo %i\n", philo->num);
+	usleep(philo->time_to->eat);
 	pthread_mutex_unlock(&philo->fork);
-	pthread_mutex_unlock(&philo->l->fork);
+	pthread_mutex_unlock(&philo->left->fork);
 }
 
 void	*start_philo(void *arg)
 {
+	t_philosophers *philo;
+
+	philo = (t_philosophers *)arg;
+	
 	while(1)
 	{
-		printf("--------\n");
-		eat_philo((t_philosophers *)arg);
-		sleep(1);
+		//printf("--------\n");
+		eat_philo(philo);
+		usleep(philo->time_to->sleep);
 	}
 	return(arg);	
 }
@@ -49,36 +53,50 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		lst_philos->hilo = (pthread_t *)malloc(sizeof(pthread_t));
 		pthread_mutex_init(&lst_philos->fork, NULL);
 		pthread_create(lst_philos->hilo, NULL, start_philo, (void *)lst_philos);
-		lst_philos = lst_philos->r;
+		lst_philos = lst_philos->right;
 		i++;
 	}
 
 	while(j >= 0)
 	{
 		pthread_join(*tmp_ph->hilo, NULL);
-		tmp_ph = tmp_ph->r;
+		tmp_ph = tmp_ph->right;
 		j--;
 	}
 	
 }
 
 
-t_philosophers *new_philo(int  num)
+t_philosophers *new_philo(int  num, t_time *time)
 {
 	t_philosophers	*philo;
 
 	philo = (t_philosophers *)malloc(sizeof(t_philosophers));
 	if(!philo)
 		return (NULL);
-	philo->r = philo;
-	philo->l = philo;
+	philo->right = philo;
+	philo->left = philo;
 	philo->num = num;
+	philo->time_to = time;
 	return(philo);
+}
+
+t_time *new_time(useconds_t die, useconds_t eat, useconds_t sleep)
+{
+	t_time *new_time;
+
+	new_time = (t_time *)malloc(sizeof(t_time));
+	if(!new_time)
+		return(NULL);
+	new_time->die = die;
+	new_time->eat = eat;
+	new_time->sleep = sleep;
+	return (new_time);
 }
 
 t_philosophers *last_philo(t_philosophers *last_philo)
 {
-	return(last_philo->l);
+	return(last_philo->left);
 }
 
 void	add_philos(t_philosophers **lst_philos, t_philosophers *new_elem)
@@ -88,13 +106,20 @@ void	add_philos(t_philosophers **lst_philos, t_philosophers *new_elem)
 	tmp = last_philo(*lst_philos);
 
 	
-	(*lst_philos)->l = new_elem;
-	tmp->r = new_elem;
-	new_elem->r= (*lst_philos);
-	new_elem->l = tmp;
+	(*lst_philos)->left = new_elem;
+	tmp->right = new_elem;
+	new_elem->right = (*lst_philos);
+	new_elem->left = tmp;
 }
 
+useconds_t miltomic(char *time)
+{
+	useconds_t micro_sec;
 
+	micro_sec = (min_atoi(time) * 1000);
+	
+	return (micro_sec);
+}
 
 int main (int argc, char *argv[])
 {
@@ -105,10 +130,10 @@ int main (int argc, char *argv[])
 	int i;
 	i = 2;
 	
-	lst_philo = new_philo(1);
+	lst_philo = new_philo(1, new_time(miltomic(argv[2]),miltomic(argv[3]), miltomic(argv[4])));
 	while (i <= n_philo)
 	{
-		add_philos(&lst_philo, new_philo(i));
+		add_philos(&lst_philo, new_philo(i, new_time(miltomic(argv[2]), miltomic(argv[3]), miltomic(argv[4]))));
 		i++;
 	}
 
@@ -116,34 +141,3 @@ int main (int argc, char *argv[])
 	return(0);
 	
 }
-
-/* 
-int main(int argc, char *argv[])
-{
-	(void)argc;
-	int n_philo;
-	pthread_t *philo;
-
-	t_philosophers *lst_philos;
-
-	lst_philos = (t_philosophers *)malloc(sizeof(t_philosophers));
-
-
-	
-
-	n_philo = min_atoi(argv[1]);
-	if (n_philo > 0)
-	{
-		philo = (pthread_t *)malloc(sizeof(pthread_t) * n_philo);
-		if (!philo)
-			printf("Error:\nMalloc");
-	}
-	else
-		{
-			printf("Error:\nInvalid argument: %s\n", argv[1]);
-			return(-1);
-		}
-	create_philosophers(philo, n_philo);
-	
-	return (0);
-}*/

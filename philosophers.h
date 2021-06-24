@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/23 22:39:38 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/24 16:10:09 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,22 @@
 # include <stdio.h>
 # include <stdlib.h>
 
+typedef struct s_time
+{
+	useconds_t	die;
+	useconds_t	eat;
+	useconds_t	sleep;
+	
+}				t_time;
+
 
 typedef	struct s_philosophers
 {
-	pthread_t 				*hilo;
-	struct s_philosophers	*r;
-	struct s_philosophers	*l;
+	struct s_time			*time_to;
+	struct s_philosophers	*right;
+	struct s_philosophers	*left;
 	pthread_mutex_t			fork;
+	pthread_t 				*hilo;
 	int						num;
 }			t_philosophers;
 
