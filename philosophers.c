@@ -6,42 +6,47 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/24 22:23:45 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/25 23:49:09 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
-void print_status(t_philosophers philo, char *message)
+
+void print_status(t_philosophers *philo, char *message)
 {
 	struct timeval	end;
-	float			diff;
+	useconds_t	diff;
 	
+	pthread_mutex_lock(philo->print);
 	gettimeofday(&end, NULL);
-	
-	diff = ((end.tv_usec - philo.start.tv_usec) / 1000);
-
-	// ft_putnbr_fd(diff, 1);
-	// ft_putstr_fd(" ", 1);
-	// ft_putnbr_fd(philo.num, 1);
-	// ft_putstr_fd(" ", 1);
-	// ft_putstr_fd(message, 1);
-	// ft_putstr_fd("\n", 1);
-	
-	 printf("%.0f %s %d %3s\n", diff, "ms",philo.num, message);
-	
+	diff = (end.tv_usec - philo->start.tv_usec) / 1000;
+	philo->time_to->tic_toc -= (end.tv_usec - philo->start.tv_usec);
+	printf("%3u %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
+	pthread_mutex_unlock(philo->print);
 }
+
+void take_fork(t_philosophers *philo)
+{
+	pthread_mutex_lock(&philo->fork);
+	print_status(philo, "\033[0;32mhas taken a fork");
+	pthread_mutex_lock(&philo->left->fork);
+	print_status(philo, "\033[0;32mhas taken a fork");
+}
+
+void free_fork(t_philosophers *philo)
+{
+	pthread_mutex_unlock(&philo->left->fork);
+	pthread_mutex_unlock(&philo->fork);
+}
+
 void eat_philo(t_philosophers *philo)
 {
-
-	pthread_mutex_lock(&philo->left->fork);
-	print_status(*philo, "has taken a fork");
-	pthread_mutex_lock(&philo->fork);
-	print_status(*philo, "has taken a fork");
-	print_status(*philo, "is eating");
+	take_fork(philo);
+	print_status(philo, "\033[0;33mis eating");
+	philo->time_to->tic_toc = philo->time_to->die;
 	usleep(philo->time_to->eat);
-	pthread_mutex_unlock(&philo->fork);
-	pthread_mutex_unlock(&philo->left->fork);
+	free_fork(philo);
 }
 
 void	*start_philo(void *arg)
@@ -50,12 +55,24 @@ void	*start_philo(void *arg)
 
 	philo = (t_philosophers *)arg;
 	
-	while(1)
+	philo->time_to->tic_toc = philo->time_to->die;
+
+	// printf("%d\n", philo->time_to->tic_toc);
+	if (philo->num % 2 == 0 || (philo->size_lst == philo->num))
 	{
-		eat_philo(philo);	
-		//print_status(*philo, "is sleeping");
-		usleep(philo->time_to->sleep);
+		print_status(philo, "\033[0;35mis thinking");
+		// usleep(philo->time_to->eat);
 	}
+	while(philo->time_to->tic_toc > 0)
+	{
+		eat_philo(philo);
+		
+		print_status(philo, "\033[0;34mis sleeping");
+		usleep(philo->time_to->sleep);		
+		print_status(philo, "\033[0;35mis thinking");
+	}
+
+	print_status(philo, "\033[0;31mis died");	
 	return(arg);	
 }
 
@@ -63,7 +80,6 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 {
 	int i, j;
 	t_philosophers *tmp_ph;
-
 
 	j = n_philo -1 ;
 	tmp_ph = lst_philos;
@@ -90,18 +106,22 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 }
 
 
-t_philosophers *new_philo(int  num, t_time *time, struct timeval start)
+t_philosophers *new_philo(int  num, t_time *time, struct timeval start, size_t size)
 {
 	t_philosophers	*philo;
+	static pthread_mutex_t status;
 
 	philo = (t_philosophers *)malloc(sizeof(t_philosophers));
 	if(!philo)
 		return (NULL);
+	pthread_mutex_init(&status, NULL);
+	philo->print = &status;
 	philo->right = philo;
 	philo->left = philo;
 	philo->num = num;
 	philo->time_to = time;
 	philo->start.tv_usec = start.tv_usec;
+	philo->size_lst = size;
 	return(philo);
 }
 
@@ -145,8 +165,6 @@ useconds_t miltomic(char *time)
 	return (micro_sec);
 }
 
-
-
 int main (int argc, char *argv[])
 {
 	t_philosophers *lst_philo;
@@ -158,30 +176,13 @@ int main (int argc, char *argv[])
 	i = 2;
 	
 	gettimeofday(&start, NULL);
-	lst_philo = new_philo(1, new_time(miltomic(argv[2]),miltomic(argv[3]), miltomic(argv[4])), start);
+	lst_philo = new_philo(1, new_time(miltomic(argv[2]), miltomic(argv[3]), miltomic(argv[4])), start, n_philo);
 	while (i <= n_philo)
 	{
-	
-		add_philos(&lst_philo, new_philo(i, new_time(miltomic(argv[2]), miltomic(argv[3]), miltomic(argv[4])), start));
+		add_philos(&lst_philo, new_philo(i, new_time(miltomic(argv[2]), miltomic(argv[3]), miltomic(argv[4])), start, n_philo));
 		i++;
 	}
-
 	create_philosophers(lst_philo, n_philo);
 	return(0);
 	
 }
-
-/*int main ()
-{
-	struct timeval	start;
-	struct timeval	end;
-
-	gettimeofday(&start, NULL);
-
-	printf("time start: [%d]\n", start.tv_usec);
-	sleep(5);
-	gettimeofday(&end, NULL);
-	printf("time end: [%d]\n", end.tv_usec);
-	printf("time diff: [%d]\n", (end.tv_usec - start.tv_usec));
-	printf("time diff mil: [%.4f]\n", (float)(end.tv_usec - start.tv_usec) / 1000);
-}*/
