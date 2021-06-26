@@ -6,22 +6,25 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/26 03:16:52 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/26 23:42:52 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
 
+ uint64_t get_time()
+{
+	static struct timeval	end;
+	gettimeofday(&end, NULL);
+	return((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
+}
 void print_status(t_philosophers *philo, char *message)
 {
-	struct timeval	end;
-	uint64_t	diff;
+	uint64_t	diff;	
 	
 	pthread_mutex_lock(philo->print);
-	gettimeofday(&end, NULL);
-	diff = (end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000) - philo->start;
-	philo->time_to->tic_toc -= diff;
+	diff = get_time() - philo->start;
 	printf("%3llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
 	pthread_mutex_unlock(philo->print);
 }
@@ -42,58 +45,69 @@ void free_fork(t_philosophers *philo)
 
 void eat_philo(t_philosophers *philo)
 {
-	take_fork(philo);
-	print_status(philo, "\033[0;33mis eating");
-	philo->time_to->tic_toc = philo->time_to->die;
-	//printf("%d %d", philo->num, philo->time_to->eat);
-	usleep(philo->time_to->eat);
-	free_fork(philo);
+	if(!*philo->die && philo->time_to->tic_toc > 0)
+	{
+		take_fork(philo);
+		print_status(philo, "\033[0;33mis eating");
+		philo->time_to->tic_toc = philo->time_to->die;
+		usleep(philo->time_to->eat);
+		free_fork(philo);
+		philo->time_to->tic_toc -= philo->time_to->eat;	
+	}
 }
 
 void	*start_philo(void *arg)
 {
 	t_philosophers *philo;
+	t_philosophers *tmp_ph;
+	int j;
 
 	philo = (t_philosophers *)arg;
-	
-	philo->time_to->tic_toc = philo->time_to->die;
-
-	// printf("%d\n", philo->time_to->tic_toc);
+	j = philo->size_lst;
+	philo->time_to->tic_toc = (long long)philo->time_to->die;
+	philo->start_think = 0;
 	if (philo->num % 2 == 0 || (philo->size_lst == (size_t)philo->num))
+		usleep(philo->time_to->eat);
+	while (philo->time_to->tic_toc > 0 && !*philo->die)
 	{
-		print_status(philo, "\033[0;35mis thinking");
-		// usleep(philo->time_to->eat);
+			eat_philo(philo);
+		if(!*philo->die && philo->time_to->tic_toc > 0)
+		{
+			print_status(philo, "\033[0;34mis sleeping");	
+			usleep(philo->time_to->sleep);
+			philo->time_to->tic_toc -= philo->time_to->sleep;
+		}
+		else if(!*philo->die && philo->time_to->tic_toc > 0)
+				print_status(philo, "\033[0;35mis thinking");
+		else
+		{
+			print_status(philo, "\033[0;31mis died");
+	 		*philo->die = 1;
+			
+		}
 	}
-	while(philo->time_to->tic_toc > 0)
-	{
-		eat_philo(philo);
-		
-		print_status(philo, "\033[0;34mis sleeping");
-		usleep(philo->time_to->sleep);		
-		print_status(philo, "\033[0;35mis thinking");
 
-		//printf("[[[%llu]]]\n", philo->time_to->tic_toc);
-	}
 
-	print_status(philo, "\033[0;31mis died");	
-	return(arg);	
+	return(NULL);	
 }
 
 void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 {
 	int i, j;
 	t_philosophers *tmp_ph;
+	t_bool die;
 
 	j = n_philo -1 ;
+	die = 0;
 	tmp_ph = lst_philos;
 	i = 0;
 
 	while(i < n_philo)
 	{
-		
 		lst_philos->hilo = (pthread_t *)malloc(sizeof(pthread_t));
+		lst_philos->size_lst = n_philo;
+		lst_philos->die = &die;
 		pthread_mutex_init(&lst_philos->fork, NULL);
-		
 		pthread_create(lst_philos->hilo, NULL, start_philo, (void *)lst_philos);
 		lst_philos = lst_philos->right;
 		i++;
@@ -104,6 +118,20 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		pthread_join(*tmp_ph->hilo, NULL);
 		tmp_ph = tmp_ph->right;
 		j--;
+	}
+	
+	 while(n_philo--)
+	{
+		pthread_mutex_unlock(&lst_philos->fork);
+		pthread_mutex_destroy(&lst_philos->fork);
+		if (lst_philos->right)
+		{
+			pthread_detach(*lst_philos->hilo);
+			//lst_philos->right->time_to->tic_toc = lst_philos->time_to->tic_toc;
+			lst_philos = lst_philos->right;
+			free(lst_philos->time_to);
+			free(lst_philos);
+		}
 	}
 	
 }
@@ -125,6 +153,7 @@ t_philosophers *new_philo(int  num, t_time *time, struct timeval start, size_t s
 	philo->time_to = time;
 	philo->start= (start.tv_sec * (uint64_t)1000) + (start.tv_usec / 1000);
 	philo->size_lst = size;
+
 	return(philo);
 }
 
@@ -187,6 +216,7 @@ int main (int argc, char *argv[])
 		i++;
 	}
 	create_philosophers(lst_philo, n_philo);
+
 	return(0);
 	
 }

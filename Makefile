@@ -8,7 +8,7 @@ GCC		= gcc
 
 FLAGS	= -Wall -Werror -Wextra -I
 
-LIBS	= -lpthread
+LIBS	= -pthread
 
 ${NAME}:	${OBJS}
 			@echo "\033[36mCompiled..."

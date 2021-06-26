@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/26 03:16:16 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/26 22:10:42 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,15 +27,17 @@ typedef struct s_time
 	useconds_t	die;
 	useconds_t	eat;
 	useconds_t	sleep;
-	uint64_t		tic_toc;
+	long long	tic_toc;
 	
 }				t_time;
 
+typedef	int	t_bool;
 
 typedef	struct s_philosophers
 {
 	struct s_time			*time_to;
 	uint64_t				start;
+	uint64_t				start_think;
 	struct s_philosophers	*right;
 	struct s_philosophers	*left;
 	pthread_mutex_t			fork;
@@ -43,6 +45,8 @@ typedef	struct s_philosophers
 	pthread_t 				*hilo;
 	int						num;
 	size_t					size_lst;
+	t_bool					*die;
+
 }			t_philosophers;
 
 /* 
