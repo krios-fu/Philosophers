@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/26 23:42:52 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/27 02:40:08 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,12 @@ void print_status(t_philosophers *philo, char *message)
 	uint64_t	diff;	
 	
 	pthread_mutex_lock(philo->print);
-	diff = get_time() - philo->start;
-	printf("%3llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
+	if(philo->time_to->tic_toc > 0)
+	{
+		
+		diff = get_time() - philo->start;
+		printf("%3llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
+	}
 	pthread_mutex_unlock(philo->print);
 }
 
@@ -45,7 +49,7 @@ void free_fork(t_philosophers *philo)
 
 void eat_philo(t_philosophers *philo)
 {
-	if(!*philo->die && philo->time_to->tic_toc > 0)
+	if(philo->time_to->tic_toc > 0)
 	{
 		take_fork(philo);
 		print_status(philo, "\033[0;33mis eating");
@@ -60,6 +64,8 @@ void	*start_philo(void *arg)
 {
 	t_philosophers *philo;
 	t_philosophers *tmp_ph;
+
+	
 	int j;
 
 	philo = (t_philosophers *)arg;
@@ -68,25 +74,20 @@ void	*start_philo(void *arg)
 	philo->start_think = 0;
 	if (philo->num % 2 == 0 || (philo->size_lst == (size_t)philo->num))
 		usleep(philo->time_to->eat);
-	while (philo->time_to->tic_toc > 0 && !*philo->die)
+	while (philo->time_to->tic_toc > 0)
 	{
 			eat_philo(philo);
-		if(!*philo->die && philo->time_to->tic_toc > 0)
+		if(philo->time_to->tic_toc > 0)
 		{
 			print_status(philo, "\033[0;34mis sleeping");	
 			usleep(philo->time_to->sleep);
 			philo->time_to->tic_toc -= philo->time_to->sleep;
 		}
-		else if(!*philo->die && philo->time_to->tic_toc > 0)
+		if(philo->time_to->tic_toc > 0)
 				print_status(philo, "\033[0;35mis thinking");
-		else
-		{
-			print_status(philo, "\033[0;31mis died");
-	 		*philo->die = 1;
-			
-		}
 	}
-
+	print_status(philo, "\033[0;31mis died");
+	*philo->die = 1;
 
 	return(NULL);	
 }
@@ -126,7 +127,7 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		pthread_mutex_destroy(&lst_philos->fork);
 		if (lst_philos->right)
 		{
-			pthread_detach(*lst_philos->hilo);
+			pthread_join(*lst_philos->hilo, NULL);
 			//lst_philos->right->time_to->tic_toc = lst_philos->time_to->tic_toc;
 			lst_philos = lst_philos->right;
 			free(lst_philos->time_to);
