@@ -6,39 +6,31 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/27 02:40:08 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/27 22:57:26 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
-
- uint64_t get_time()
-{
-	static struct timeval	end;
-	gettimeofday(&end, NULL);
-	return((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
-}
-void print_status(t_philosophers *philo, char *message)
-{
-	uint64_t	diff;	
-	
-	pthread_mutex_lock(philo->print);
-	if(philo->time_to->tic_toc > 0)
-	{
-		
-		diff = get_time() - philo->start;
-		printf("%3llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
-	}
-	pthread_mutex_unlock(philo->print);
-}
-
 void take_fork(t_philosophers *philo)
 {
+	uint64_t diff_time;
 	pthread_mutex_lock(&philo->fork);
-	print_status(philo, "\033[0;32mhas taken a fork");
-	pthread_mutex_lock(&philo->left->fork);
-	print_status(philo, "\033[0;32mhas taken a fork");
+	print_status(philo, "\033[1;32mhas taken a fork");
+	if(philo->time_to->tic_toc > 0 && *philo->die == 0)
+	{
+		pthread_mutex_lock(&philo->left->fork);
+		printf("comer %llu\n", philo->time_to->eat / 1000);
+		if(get_time() - philo->start > ((philo->time_to->eat + 10000) / 1000))
+		{
+			diff_time = get_time() - philo->start_think;
+		}
+		printf("pensar [%llu] %d\n", diff_time, philo->num);
+		printf("tic toc [%lld]\n", philo->time_to->tic_toc);
+		philo->time_to->tic_toc -= philo->start_think;
+		printf("tic toc new [%lld]\n", philo->time_to->tic_toc);
+		print_status(philo, "\033[1;32mhas taken a fork");
+	}
 }
 
 void free_fork(t_philosophers *philo)
@@ -49,10 +41,10 @@ void free_fork(t_philosophers *philo)
 
 void eat_philo(t_philosophers *philo)
 {
-	if(philo->time_to->tic_toc > 0)
+	take_fork(philo);
+	if(philo->time_to->tic_toc > 0 && *philo->die == 0)
 	{
-		take_fork(philo);
-		print_status(philo, "\033[0;33mis eating");
+		print_status(philo, "\033[1;33mis eating");
 		philo->time_to->tic_toc = philo->time_to->die;
 		usleep(philo->time_to->eat);
 		free_fork(philo);
@@ -65,31 +57,38 @@ void	*start_philo(void *arg)
 	t_philosophers *philo;
 	t_philosophers *tmp_ph;
 
-	
-	int j;
 
 	philo = (t_philosophers *)arg;
-	j = philo->size_lst;
-	philo->time_to->tic_toc = (long long)philo->time_to->die;
+	philo->time_to->tic_toc = (long long)(philo->time_to->die / 1000);
 	philo->start_think = 0;
+	
 	if (philo->num % 2 == 0 || (philo->size_lst == (size_t)philo->num))
 		usleep(philo->time_to->eat);
-	while (philo->time_to->tic_toc > 0)
+	while (philo->time_to->tic_toc > 0 && *philo->die == 0)
 	{
-			eat_philo(philo);
-		if(philo->time_to->tic_toc > 0)
+		eat_philo(philo);
+		if(philo->time_to->tic_toc > 0 && *philo->die == 0)
 		{
-			print_status(philo, "\033[0;34mis sleeping");	
+			print_status(philo, "\033[1;34mis sleeping");
 			usleep(philo->time_to->sleep);
 			philo->time_to->tic_toc -= philo->time_to->sleep;
 		}
-		if(philo->time_to->tic_toc > 0)
-				print_status(philo, "\033[0;35mis thinking");
+		if(philo->time_to->tic_toc > 0 && *philo->die == 0)
+		{
+			print_status(philo, "\033[1;35mis thinking");
+			philo->start_think = (uint64_t)(get_time() - philo->start);
+			printf("*** --> pensar [%llu] %d\n", philo->start_think, philo->num);
+			
+		}
 	}
-	print_status(philo, "\033[0;31mis died");
-	*philo->die = 1;
-
-	return(NULL);	
+	pthread_mutex_lock(philo->print_die);
+	if (*philo->die == 0)
+	{
+		printf("%6llu %s \033[0;36m%2d  %s\n\033[0;37m", get_time() - philo->start, "ms",philo->num, "\033[1;31mis die");
+		*philo->die = 1;
+	}
+	 pthread_mutex_unlock(philo->print_die);
+	return(NULL);
 }
 
 void	create_philosophers(t_philosophers *lst_philos, int n_philo)
@@ -128,7 +127,6 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		if (lst_philos->right)
 		{
 			pthread_join(*lst_philos->hilo, NULL);
-			//lst_philos->right->time_to->tic_toc = lst_philos->time_to->tic_toc;
 			lst_philos = lst_philos->right;
 			free(lst_philos->time_to);
 			free(lst_philos);
@@ -141,18 +139,26 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 t_philosophers *new_philo(int  num, t_time *time, struct timeval start, size_t size)
 {
 	t_philosophers	*philo;
-	static pthread_mutex_t status;
+	static pthread_mutex_t print;
+	static pthread_mutex_t print_die;
+	static t_bool die;
+
+	die = 0;
 
 	philo = (t_philosophers *)malloc(sizeof(t_philosophers));
 	if(!philo)
 		return (NULL);
-	pthread_mutex_init(&status, NULL);
-	philo->print = &status;
+	pthread_mutex_init(&print, NULL);
+	pthread_mutex_init(&print_die, NULL);
+	philo->print = &print;
+	philo->print_die = &print_die;
 	philo->right = philo;
 	philo->left = philo;
 	philo->num = num;
 	philo->time_to = time;
-	philo->start= (start.tv_sec * (uint64_t)1000) + (start.tv_usec / 1000);
+	philo->die = &die;
+	philo->start_think = 0;
+	philo->start= get_time();
 	philo->size_lst = size;
 
 	return(philo);

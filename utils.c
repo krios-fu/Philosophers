@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:58:28 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/24 20:11:57 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/27 21:08:48 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,42 +38,22 @@ int	min_atoi(char *str)
 	return (-1);
 }
 
-void	ft_putstr_fd(char *s, int fd)
+void print_status(t_philosophers *philo, char *message)
 {
-	size_t	i;
+	uint64_t	diff;
 
-	i = 0;
-	if (s == NULL)
-		return ;
-	while (s[i] != '\0')
+	pthread_mutex_lock(philo->print);
+	if(philo->time_to->tic_toc > 0 && *philo->die == 0)
 	{
-		ft_putchar_fd(s[i], fd);
-		i++;
+		diff = get_time() - philo->start;
+		printf("%6llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
 	}
+	pthread_mutex_unlock(philo->print);
 }
 
-void	ft_putchar_fd(char c, int fd)
+uint64_t get_time()
 {
-	write(fd, &c, 1);
-}
-
-void	ft_putnbr_fd(int n, int fd)
-{
-	long	r;
-
-	r = n;
-	if (r < 0)
-	{
-		ft_putchar_fd('-', fd);
-		r = r * -1;
-	}
-	if (r >= 10)
-	{
-		ft_putnbr_fd(r / 10, fd);
-		ft_putnbr_fd(r % 10, fd);
-	}
-	else
-	{
-		ft_putchar_fd(r + '0', fd);
-	}
+	static struct timeval	end;
+	gettimeofday(&end, NULL);
+	return((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
 }
