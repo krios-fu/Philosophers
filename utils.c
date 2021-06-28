@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:58:28 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/27 21:08:48 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/28 01:38:59 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void print_status(t_philosophers *philo, char *message)
 	if(philo->time_to->tic_toc > 0 && *philo->die == 0)
 	{
 		diff = get_time() - philo->start;
-		printf("%6llu %s \033[0;36m%2d  %s\n\033[0;37m", diff, "ms",philo->num, message);
+		printf("%6llu %s \033[1;36m%3d  %s\n\033[1;37m", diff, "ms",philo->num, message);
 	}
 	pthread_mutex_unlock(philo->print);
 }

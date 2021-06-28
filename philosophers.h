@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/27 22:27:29 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/28 02:50:56 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ typedef struct s_time
 	useconds_t	eat;
 	useconds_t	sleep;
 	long long	tic_toc;
+	int			count_eat;
+	int			must_eat;
 	
 }				t_time;
 
@@ -48,6 +50,7 @@ typedef	struct s_philosophers
 	size_t					size_lst;
 	t_bool					*die;
 
+
 }			t_philosophers;
 
 /* 
@@ -59,11 +62,39 @@ void		print_status(t_philosophers *philo, char *message);
 uint64_t 	get_time();
 
 /* 
-** Funtions Put
+** Functions Put
 */
 
 void	ft_putstr_fd(char *s, int fd);
 void	ft_putchar_fd(char c, int fd);
 void	ft_putnbr_fd(int n, int fd);
+
+/* 
+** Functions status
+*/
+
+void 	eat_philo(t_philosophers *philo);
+void 	sleep_philo(t_philosophers *philo);
+void 	think_philo(t_philosophers *philo);
+void	die_philo(t_philosophers *philo);
+
+/* 
+** Functions fork_mutex
+*/
+
+void take_fork(t_philosophers *philo);
+void free_fork(t_philosophers *philo);
+t_time *new_time(char *argv[]);
+t_philosophers *last_philo(t_philosophers *last_philo);
+
+/* 
+** Functions create_philo
+*/
+
+void	add_philos(t_philosophers **lst_philos, t_philosophers *new_elem);
+t_philosophers *new_philo(int  num, t_time *time, struct timeval start, size_t size);
+t_time *new_time(char *argv[]);
+t_philosophers *last_philo(t_philosophers *last_philo);
+useconds_t miltomic(char *time);
 
 #endif
