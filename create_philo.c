@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:35:35 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/28 03:13:11 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 02:34:03 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,14 @@ t_philosophers *new_philo(int  num, t_time *time, struct timeval start, size_t s
 	philo->start_think = (uint64_t)0;
 	philo->start= get_time();
 	philo->size_lst = size;
+	philo->think = 0;
 	return(philo);
 }
 
 t_time *new_time(char *argv[])
 {
 	t_time *new_time;
+	static int		tmp_must_eat;
 
 	new_time = (t_time *)malloc(sizeof(t_time));
 	if(!new_time)
@@ -50,7 +52,11 @@ t_time *new_time(char *argv[])
 	new_time->sleep = miltomic(argv[4]);
 	if (argv[5])
 		new_time->must_eat = min_atoi(argv[5]);
+	else
+		new_time->must_eat = 0;
 	new_time->count_eat = 0;
+	tmp_must_eat = 0;
+	new_time->tmp_must_eat = &tmp_must_eat;
 	return (new_time);
 }
 

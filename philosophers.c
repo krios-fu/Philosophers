@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/28 03:14:41 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 03:50:30 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,43 @@ void	*start_philo(void *arg)
 	t_philosophers *philo;
 	t_philosophers *tmp_ph;
 
-
 	philo = (t_philosophers *)arg;
 	philo->time_to->tic_toc = (long long)(philo->time_to->die / 1000);
 	philo->start_think = 0;
-	
 	if (philo->num % 2 == 0 || (philo->size_lst == (size_t)philo->num))
 		usleep(philo->time_to->eat);
-	while (philo->time_to->tic_toc > 0 && *philo->die == 0)
+	if (philo->time_to->must_eat >= 1)
 	{
-		eat_philo(philo);
-		sleep_philo(philo);
-		think_philo(philo);
-		if (philo->time_to->count_eat == philo->time_to->must_eat)
-			break ;
+		while (*philo->time_to->tmp_must_eat < philo->size_lst)
+		{
+			eat_philo(philo);
+			if (*philo->time_to->tmp_must_eat == philo->size_lst)
+				break ;
+			sleep_philo(philo);
+			if (*philo->time_to->tmp_must_eat == philo->size_lst)
+				break ;
+			think_philo(philo);
+			if (*philo->time_to->tmp_must_eat == philo->size_lst)
+				break ;
+
+		}
 	}
-	if(!philo->time_to->must_eat)
+	else 
+	{
+		while (1)
+		{
+			eat_philo(philo);
+			sleep_philo(philo);
+			think_philo(philo);	
+			if(philo->time_to->tic_toc < 0 || *philo->die == 1)
+			{
+				free_fork(philo);
+				break;
+			}
+		}
 		die_philo(philo);
-	return(NULL);
+	}
+	return((void *)0);
 }
 
 void	create_philosophers(t_philosophers *lst_philos, int n_philo)
@@ -66,10 +85,8 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		tmp_ph = tmp_ph->right;
 		j--;
 	}
-	
 	 while(n_philo--)
 	{
-		pthread_mutex_unlock(&lst_philos->fork);
 		pthread_mutex_destroy(&lst_philos->fork);
 		if (lst_philos->right)
 		{
@@ -82,6 +99,26 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 	}
 }
 
+int check_arg (char *argv[])
+{
+	int i;
+	int j;
+
+	i = 1;
+	while (argv[i])
+	{
+		j = 0;
+		while (argv[i][j])
+		{
+			if (!ft_isdigit(argv[i][j]))
+				return (0);
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}
+
 int main (int argc, char *argv[])
 {
 	t_philosophers *lst_philo;
@@ -89,7 +126,7 @@ int main (int argc, char *argv[])
 	int n_philo;
 	int i;
 
-	if (argc == 5 || argc == 6)
+	if ((argc == 5 || argc == 6) && check_arg(argv) && min_atoi(argv[1]) > 1 && min_atoi(argv[5]) > 0)
 	{
 		n_philo = min_atoi(argv[1]);
 		i = 2;
@@ -102,5 +139,7 @@ int main (int argc, char *argv[])
 		}
 		create_philosophers(lst_philo, n_philo);
 	}
+	else
+		printf("philo: Error syntax arguments\n");
 	return(0);
 }
