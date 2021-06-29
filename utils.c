@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:58:28 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 03:22:54 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 03:53:03 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,24 @@ uint64_t get_time()
 	static struct timeval	end;
 	gettimeofday(&end, NULL);
 	return((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
+}
+
+int check_arg (char *argv[])
+{
+	int i;
+	int j;
+
+	i = 1;
+	while (argv[i])
+	{
+		j = 0;
+		while (argv[i][j])
+		{
+			if (!ft_isdigit(argv[i][j]))
+				return (0);
+			j++;
+		}
+		i++;
+	}
+	return (1);
 }

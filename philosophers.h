@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 02:33:32 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 03:53:18 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ int			ft_isdigit(int c);
 int			min_atoi(char *str);
 void		print_status(t_philosophers *philo, char *message);
 uint64_t 	get_time();
+int			check_arg (char *argv[]);
 
 /* 
 ** Functions Put

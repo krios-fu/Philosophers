@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 03:50:30 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 03:52:52 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ void	*start_philo(void *arg)
 			think_philo(philo);
 			if (*philo->time_to->tmp_must_eat == philo->size_lst)
 				break ;
-
 		}
 	}
 	else 
@@ -67,7 +66,6 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 	die = 0;
 	tmp_ph = lst_philos;
 	i = 0;
-
 	while(i < n_philo)
 	{
 		lst_philos->hilo = (pthread_t *)malloc(sizeof(pthread_t));
@@ -78,7 +76,6 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 		lst_philos = lst_philos->right;
 		i++;
 	}
-
 	while(j >= 0)
 	{
 		pthread_join(*tmp_ph->hilo, NULL);
@@ -97,26 +94,6 @@ void	create_philosophers(t_philosophers *lst_philos, int n_philo)
 			free(lst_philos);
 		}
 	}
-}
-
-int check_arg (char *argv[])
-{
-	int i;
-	int j;
-
-	i = 1;
-	while (argv[i])
-	{
-		j = 0;
-		while (argv[i][j])
-		{
-			if (!ft_isdigit(argv[i][j]))
-				return (0);
-			j++;
-		}
-		i++;
-	}
-	return (1);
 }
 
 int main (int argc, char *argv[])
