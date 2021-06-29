@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:58:28 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 03:53:03 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/29 23:19:12 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ int	min_atoi(char *str)
 
 	nb = 0;
 	i = 0;
+	if (!*str)
+		return (0);
 	while (str[i] && ft_isdigit(str[i]))
 	{
 		nb += str[i] - '0';
@@ -38,30 +40,30 @@ int	min_atoi(char *str)
 	return (-1);
 }
 
-void print_status(t_philosophers *philo, char *message)
+void	print_status(t_philosophers *philo, char *message)
 {
 	uint64_t	diff;
 
 	diff = get_time() - philo->start;
 	pthread_mutex_lock(philo->print);
-	if(philo->time_to->tic_toc > 0 && *philo->die == 0)
-	{
-		printf("%6llu %s \033[1;36m%3d  %s\n\033[1;37m", diff, "ms",philo->num, message);
-	}
+	if (philo->time_to->tic_toc > 0 && *philo->die == 0)
+		printf("%6llu %s \033[1;36m%3d  %s\n\033[1;37m", diff,
+			 "ms", philo->num, message);
 	pthread_mutex_unlock(philo->print);
 }
 
-uint64_t get_time()
+uint64_t	get_time(void)
 {
 	static struct timeval	end;
+
 	gettimeofday(&end, NULL);
-	return((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
+	return ((end.tv_sec * (uint64_t)1000) + (end.tv_usec / 1000));
 }
 
-int check_arg (char *argv[])
+int	check_arg(char *argv[])
 {
-	int i;
-	int j;
+	int	i;
+	int	j;
 
 	i = 1;
 	while (argv[i])

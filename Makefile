@@ -1,6 +1,6 @@
 NAME	= philo
 
-SRCS	= ./philosophers.c ./utils.c ./status_philo.c ./fork_mutex.c ./create_philo.c
+SRCS	= ./philosophers.c ./utils.c ./status_philo.c ./fork_mutex.c ./create_philo.c ./loop_philo.c ./threads_process.c
 
 OBJS	= ${SRCS:.c=.o}
 
