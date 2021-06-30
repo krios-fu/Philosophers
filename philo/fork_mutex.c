@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:12:39 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 15:00:31 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 18:01:56 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ void	take_fork(t_philosophers *philo)
 	(*philo->num_fork)--;
 	pthread_mutex_unlock(philo->print);
 	print_status(philo, GREEN"has taken a fork 🍴");
+	if (philo->size_lst == 1)
+		think_philo(philo);
 	pthread_mutex_lock(&philo->fork);
 	pthread_mutex_lock(philo->print);
 	(*philo->num_fork)--;

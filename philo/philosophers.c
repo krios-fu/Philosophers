@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 19:15:58 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 15:00:46 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 18:00:51 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	create_lst_philos(int argc, char *argv[])
 	int				i;
 	int				n_philo;
 
-	if ((argc == 5 || argc == 6) && check_arg(argv) && min_atoi(argv[1]) > 1)
+	if ((argc == 5 || argc == 6) && check_arg(argv))
 	{
 		if (argv[5] && min_atoi(argv[5]) == 0)
 			return (0);

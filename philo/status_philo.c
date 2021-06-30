@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:06:46 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 15:01:44 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 17:59:36 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ void	think_philo(t_philosophers *philo)
 	status = 0;
 	if (*philo->die == 1)
 		return ;
-	print_status(philo, PINK"is thinking 🧐");
+	if (philo->size_lst > 1)
+		print_status(philo, PINK"is thinking 🧐");
 	while (status == 0)
 	{
 		if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
