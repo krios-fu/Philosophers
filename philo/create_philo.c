@@ -6,14 +6,13 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:35:35 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 03:06:24 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 14:40:52 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosophers.h"
 
-t_philosophers	*new_philo(int num, t_time *time, struct timeval start,
-		size_t size)
+t_philosophers	*new_philo(int num, t_time *time, size_t size)
 {
 	t_philosophers			*philo;
 	static t_bool			die;

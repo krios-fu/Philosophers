@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/29 17:55:17 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 00:00:27 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 14:43:26 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ void	free_resources(t_philosophers *lst_philos, int n_philo)
 void	*table_philos(void *arg)
 {
 	t_philosophers	*philo;
-	t_philosophers	*tmp_ph;
 	static int		num_fork;
 
 	philo = (t_philosophers *)arg;
@@ -74,7 +73,7 @@ void	*table_philos(void *arg)
 	philo->num_fork = &num_fork;
 	philo->time_to->tic_toc = (long long)(philo->time_to->die / 1000);
 	philo->start_think = 0;
-	if (philo->num % 2 == 0 || (philo->size_lst == (size_t)philo->num))
+	if (philo->num % 2 == 0 || (philo->size_lst == philo->num))
 		usleep(philo->time_to->eat);
 	if (philo->time_to->must_eat >= 1)
 		loop_must_eat(philo);

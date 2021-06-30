@@ -4,15 +4,15 @@ SRCS	= ./philosophers.c ./utils.c ./status_philo.c ./fork_mutex.c ./create_philo
 
 OBJS	= ${SRCS:.c=.o}
 
-GCC		= gcc
+CC		= gcc
 
-FLAGS	= -Wall -Werror -Wextra -I
+CFLAGS	= -Wall -Werror -Wextra
 
 LIBS	= -pthread
 
 ${NAME}:	${OBJS}
 			@echo "\033[36mCompiled..."
-			@${GCC} ${FLAGS} ${LIBS} ${OBJS} -o ${NAME}
+			@${CC} ${CFLAGS} ${LIBS} ${OBJS} -o ${NAME}
 			@sleep 3
 			@clear
 			@echo "\033[1;36m2b || !2be // that is the question...\033[0m\n"

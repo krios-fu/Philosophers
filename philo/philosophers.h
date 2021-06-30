@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 02:47:40 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 15:02:02 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ typedef struct s_philosophers
 	uint64_t				start_think;
 	uint64_t				start_write;
 	t_bool					*die;
-	size_t					size_lst;
+	int						size_lst;
 	int						num;
 	int						*num_fork;
 }			t_philosophers;
@@ -98,9 +98,7 @@ t_philosophers	*last_philo(t_philosophers *last_philo);
 ** Functions create_philo
 */
 
-t_philosophers	*new_philo(int num, t_time *time,
-					struct timeval start, size_t size);
-
+t_philosophers	*new_philo(int num, t_time *time, size_t size);
 t_philosophers	*last_philo(t_philosophers *last_philo);
 useconds_t		miltomic(char *time);
 t_time			*new_time(char *argv[]);
