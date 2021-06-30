@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/29 17:04:45 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 23:03:38 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 03:22:47 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	loop_without_must_eat(t_philosophers *philo)
 		eat_philo(philo);
 		sleep_philo(philo);
 		think_philo(philo);
-		if (philo->time_to->tic_toc < 0 || *philo->die == 1)
+		if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
 		{
 			free_fork(philo);
 			break ;

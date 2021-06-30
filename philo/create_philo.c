@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:35:35 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/29 23:19:47 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/06/30 03:06:24 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,17 @@ t_philosophers	*new_philo(int num, t_time *time, struct timeval start,
 		return (NULL);
 	pthread_mutex_init(&print, NULL);
 	pthread_mutex_init(&print_die, NULL);
-	philo->print = &print;
 	philo->print_die = &print_die;
-	philo->right = philo;
-	philo->left = philo;
-	philo->num = num;
-	philo->time_to = time;
-	philo->die = &die;
 	philo->start_think = (uint64_t)0;
 	philo->start_write = (uint64_t)0;
 	philo->start = get_time();
 	philo->size_lst = size;
+	philo->time_to = time;
+	philo->print = &print;
+	philo->right = philo;
+	philo->left = philo;
+	philo->die = &die;
+	philo->num = num;
 	return (philo);
 }
 
