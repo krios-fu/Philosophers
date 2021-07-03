@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/29 17:55:17 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 18:06:49 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/03 20:59:51 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ void	join_threads(t_philosophers *lst_philos, int n_philos)
 
 void	free_resources(t_philosophers *lst_philos, int n_philo)
 {
+	pthread_mutex_destroy(lst_philos->print);
+	pthread_mutex_destroy(lst_philos->print_die);
 	while (n_philo--)
 	{
 		pthread_mutex_destroy(&lst_philos->fork);

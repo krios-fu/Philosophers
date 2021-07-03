@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/29 17:04:45 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 03:22:47 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/03 21:13:39 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ void	loop_must_eat(t_philosophers *philo)
 			break ;
 		think_philo(philo);
 		if (*philo->time_to->tmp_must_eat == philo->size_lst)
+			break ;
+		if (philo->size_lst == 1)
 			break ;
 	}
 }

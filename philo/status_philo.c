@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:06:46 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 17:59:36 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/03 21:31:22 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,10 @@ void	eat_philo(t_philosophers *philo)
 	if (philo->time_to->must_eat == 0)
 	{
 		philo->time_to->tic_toc -= philo->time_to->eat / 1000;
-		if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
+		if ((philo->time_to->tic_toc <= 0 || *philo->die == 1))
 		{
-			die_philo(philo);
+			if (philo->time_to->must_eat == 0)
+				die_philo(philo);
 			return ;
 		}
 	}
@@ -48,9 +49,10 @@ void	sleep_philo(t_philosophers *philo)
 		usleep(philo->time_to->sleep);
 	if (philo->time_to->must_eat == 0)
 		philo->time_to->tic_toc -= (long long)philo->time_to->sleep / 1000;
-	if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
+	if ((philo->time_to->tic_toc <= 0 || *philo->die == 1))
 	{
-		die_philo(philo);
+		if (philo->time_to->must_eat == 0)
+			die_philo(philo);
 		return ;
 	}
 }
@@ -66,17 +68,19 @@ void	think_philo(t_philosophers *philo)
 		print_status(philo, PINK"is thinking 🧐");
 	while (status == 0)
 	{
-		if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
+		if (philo->time_to->tic_toc <= 0 || *philo->die == 1 )
 		{
-			die_philo(philo);
+			if (philo->time_to->must_eat == 0 || philo->size_lst == 1)
+				die_philo(philo);
 			return ;
 		}
 		if (*philo->num_fork >= 2)
 			status = 1;
 		philo->start_think = (get_time() - philo->start);
 		usleep(900);
-		philo->time_to->tic_toc
-			-= ((get_time() - philo->start) - philo->start_think);
+		if (philo->time_to->must_eat == 0 || philo->size_lst == 1)
+			philo->time_to->tic_toc
+				-= ((get_time() - philo->start) - philo->start_think);
 	}
 }
 
