@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/29 17:55:17 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/07/03 20:59:51 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/03 21:40:19 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void	*table_philos(void *arg)
 	philo->time_to->tic_toc = (long long)(philo->time_to->die / 1000);
 	philo->start_think = 0;
 	if (philo->size_lst > 1 && (philo->num % 2 == 0
-			|| philo->size_lst == philo->num))
+			|| philo->size_lst == philo->num) && philo->time_to->eat > 0)
 		usleep(philo->time_to->eat);
 	if (philo->time_to->must_eat >= 1)
 		loop_must_eat(philo);
