@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 22:59:19 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/06/30 15:02:02 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/20 12:50:11 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ typedef struct s_time
 	useconds_t	die;
 	useconds_t	eat;
 	useconds_t	sleep;
-	long long	tic_toc;
+	uint64_t	tic_toc;
 	int			count_eat;
 	int			must_eat;
 	int			*tmp_must_eat;
@@ -121,5 +121,9 @@ void			start_philos(t_philosophers *lst_philos, int n_philo);
 void			join_threads(t_philosophers *lst_philos, int n_philos);
 void			free_resources(t_philosophers *lst_philos, int n_philo);
 void			*table_philos(void *arg);
+
+/* morfeo */
+
+uint64_t		morfeo(t_philosophers *philo, uint64_t time_to);
 
 #endif

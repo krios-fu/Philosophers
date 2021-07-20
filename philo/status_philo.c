@@ -6,7 +6,7 @@
 /*   By: krios-fu <krios-fu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/28 02:06:46 by krios-fu          #+#    #+#             */
-/*   Updated: 2021/07/03 21:31:22 by krios-fu         ###   ########.fr       */
+/*   Updated: 2021/07/20 15:22:20 by krios-fu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,15 @@ void	eat_philo(t_philosophers *philo)
 	print_status(philo, YELLOW"is eating 🍝");
 	if (philo->time_to->count_eat == philo->time_to->must_eat)
 		(*philo->time_to->tmp_must_eat)++;
-	philo->time_to->tic_toc = (long long)(philo->time_to->die / 1000);
+	philo->time_to->tic_toc = (philo->time_to->die / 1000);
 	if (philo->time_to->eat > philo->time_to->die)
-		usleep(philo->time_to->die);
+		philo->time_to->tic_toc -= morfeo(philo, philo->time_to->die);
 	else
-		usleep(philo->time_to->eat);
-	if (philo->time_to->must_eat == 0)
+		philo->time_to->tic_toc -= morfeo(philo, philo->time_to->eat);
+	if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
 	{
-		philo->time_to->tic_toc -= philo->time_to->eat / 1000;
-		if ((philo->time_to->tic_toc <= 0 || *philo->die == 1))
-		{
-			if (philo->time_to->must_eat == 0)
-				die_philo(philo);
-			return ;
-		}
+		die_philo(philo);
+		return ;
 	}
 	free_fork(philo);
 }
@@ -44,15 +39,13 @@ void	sleep_philo(t_philosophers *philo)
 		return ;
 	print_status(philo, BLUE"is sleeping 😴");
 	if (philo->time_to->die < (philo->time_to->sleep + philo->time_to->eat))
-		usleep(philo->time_to->die - philo->time_to->eat);
+		philo->time_to->tic_toc
+			-= morfeo(philo, philo->time_to->die - philo->time_to->eat);
 	else
-		usleep(philo->time_to->sleep);
-	if (philo->time_to->must_eat == 0)
-		philo->time_to->tic_toc -= (long long)philo->time_to->sleep / 1000;
-	if ((philo->time_to->tic_toc <= 0 || *philo->die == 1))
+		philo->time_to->tic_toc -= morfeo(philo, philo->time_to->sleep);
+	if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
 	{
-		if (philo->time_to->must_eat == 0)
-			die_philo(philo);
+		die_philo(philo);
 		return ;
 	}
 }
@@ -68,19 +61,17 @@ void	think_philo(t_philosophers *philo)
 		print_status(philo, PINK"is thinking 🧐");
 	while (status == 0)
 	{
-		if (philo->time_to->tic_toc <= 0 || *philo->die == 1 )
+		if (philo->time_to->tic_toc <= 0 || *philo->die == 1)
 		{
-			if (philo->time_to->must_eat == 0 || philo->size_lst == 1)
-				die_philo(philo);
+			die_philo(philo);
 			return ;
 		}
 		if (*philo->num_fork >= 2)
 			status = 1;
 		philo->start_think = (get_time() - philo->start);
-		usleep(900);
-		if (philo->time_to->must_eat == 0 || philo->size_lst == 1)
-			philo->time_to->tic_toc
-				-= ((get_time() - philo->start) - philo->start_think);
+		usleep(1000);
+		philo->time_to->tic_toc
+			-= ((get_time() - philo->start) - philo->start_think);
 	}
 }
 
@@ -95,4 +86,20 @@ void	die_philo(t_philosophers *philo)
 			get_time() - philo->start, "ms", philo->num, RED"die 😵");
 	}
 	pthread_mutex_unlock(philo->print_die);
+}
+
+uint64_t	morfeo(t_philosophers *philo, uint64_t time_to)
+{
+	uint64_t	morfeo;
+	uint64_t	time;
+
+	morfeo = 0;
+	time = 0;
+	while (morfeo < (time_to / 1000))
+	{
+		time = (get_time() - philo->start);
+		usleep(100);
+		morfeo += ((get_time() - philo->start) - time);
+	}
+	return (morfeo);
 }
